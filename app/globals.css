@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #37352f;
+  --notion-sidebar: #fbfbfa;
+  --notion-border: rgba(55, 53, 47, 0.09);
+  --notion-hover: rgba(55, 53, 47, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #191919;
+    --foreground: rgba(255, 255, 255, 0.9);
+    --notion-sidebar: #202020;
+    --notion-border: rgba(255, 255, 255, 0.1);
+    --notion-hover: rgba(255, 255, 255, 0.05);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  -webkit-font-smoothing: auto;
+}
+
+/* Custom Scrollbar - Notion Style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(55, 53, 47, 0.1);
+  border-radius: 0;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(55, 53, 47, 0.2);
+}
+
+/* Clean Transitions */
+.transition-notion {
+  transition: background 120ms ease-in 0s;
+}
+
+/* Base Elements */
+input, select, textarea {
+  @apply focus:outline-none;
+}
+
+::selection {
+  background: rgba(35, 131, 226, 0.28);
+}
