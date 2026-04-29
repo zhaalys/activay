@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { CalendarHeader, CalendarGrid, EventModal, Sidebar, Toast } from './components';
+import { CalendarHeader, CalendarGrid, EventModal, Sidebar, Toast, NoteModal } from './components';
 import { useCalendar } from './hooks/useCalendar';
 import { useEvents } from './hooks/useEvents';
+import { useNotes } from './hooks/useNotes';
 import { CalendarEvent } from './types/calendar';
 
 export default function Home() {
@@ -25,10 +26,18 @@ export default function Home() {
     getTodayEvents,
   } = useEvents();
 
+  const {
+    isLoaded: isNotesLoaded,
+    saveNote,
+    getTodayNote,
+    getNoteForDate,
+  } = useNotes();
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
@@ -43,7 +52,7 @@ export default function Home() {
     setIsModalOpen(true);
   }, []);
 
-  const handleEventClick = useCallback((event: CalendarEvent, _e?: React.MouseEvent) => {
+  const handleEventClick = useCallback((event: CalendarEvent) => {
     setSelectedEvent(event);
     setSelectedDate(new Date(event.date));
     setModalMode('edit');
@@ -77,9 +86,36 @@ export default function Home() {
     }
   }, []);
 
+  const handleSaveNote = useCallback((content: string) => {
+    saveNote(new Date(), content);
+    setIsNoteModalOpen(false);
+    showToast('Catatan disimpan');
+  }, [saveNote, showToast]);
+
+  const handleOpenNote = useCallback(() => {
+    setIsNoteModalOpen(true);
+  }, []);
+
+  const handleNoteClick = useCallback((date: Date) => {
+    setSelectedDate(date);
+    setIsNoteModalOpen(true);
+  }, []);
+
   const todayEvents = useMemo(() => {
     return getTodayEvents();
   }, [getTodayEvents]);
+
+  const todayNote = useMemo(() => {
+    return getTodayNote();
+  }, [getTodayNote]);
+
+  if (!isCalendarLoaded || !isEventsLoaded || !isNotesLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#191919]">
+        <div className="text-zinc-400 animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   if (!isCalendarLoaded || !isEventsLoaded) {
     return (
@@ -103,8 +139,10 @@ export default function Home() {
           <CalendarGrid
             days={calendarDays}
             getEventsForDate={getEventsForDate}
+            getNoteForDate={getNoteForDate}
             onDateClick={handleDateClick}
             onEventClick={handleEventClick}
+            onNoteClick={handleNoteClick}
           />
         </div>
 
@@ -113,6 +151,9 @@ export default function Home() {
           onEventClick={handleEventClick}
           onNewEvent={() => handleDateClick(new Date())}
           onClearAll={handleClearAll}
+          onNewNote={handleOpenNote}
+          hasNote={!!todayNote}
+          todayNote={todayNote}
         />
       </main>
 
@@ -124,6 +165,14 @@ export default function Home() {
         event={selectedEvent}
         selectedDate={selectedDate}
         mode={modalMode}
+      />
+
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        onSave={handleSaveNote}
+        note={getNoteForDate(selectedDate)}
+        selectedDate={selectedDate}
       />
 
       {toast && <Toast message={toast.message} type={toast.type} />}

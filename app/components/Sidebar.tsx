@@ -1,16 +1,19 @@
 'use client';
 
-import { CalendarEvent, CATEGORY_COLORS, CATEGORY_LABELS, CATEGORY_BG } from '../types/calendar';
-import { Clock, Plus, Settings, Trash2 } from 'lucide-react';
+import { CalendarEvent, CATEGORY_COLORS, CATEGORY_LABELS, CATEGORY_BG, Note } from '../types/calendar';
+import { Clock, Plus, Settings, Trash2, StickyNote } from 'lucide-react';
 
 interface SidebarProps {
   events: CalendarEvent[];
   onEventClick: (event: CalendarEvent) => void;
   onNewEvent: () => void;
   onClearAll: () => void;
+  onNewNote: () => void;
+  hasNote: boolean;
+  todayNote?: Note | null;
 }
 
-export function Sidebar({ events, onEventClick, onNewEvent, onClearAll }: SidebarProps) {
+export function Sidebar({ events, onEventClick, onNewEvent, onClearAll, onNewNote, hasNote, todayNote }: SidebarProps) {
   const today = new Date();
   const dateString = today.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -30,7 +33,17 @@ export function Sidebar({ events, onEventClick, onNewEvent, onClearAll }: Sideba
           <span className="text-[11px] font-medium text-zinc-400">{dateString}</span>
         </div>
 
-        {sortedEvents.length === 0 ? (
+        {todayNote && (
+          <div className="mb-4 px-3 py-3 border border-[var(--notion-border)] bg-[#fff9e6] dark:bg-[#3a3520] rounded">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Catatan</span>
+              <button onClick={onNewNote} className="text-[10px] text-[#337ea9] hover:underline">Edit</button>
+            </div>
+            <p className="text-xs leading-relaxed whitespace-pre-wrap line-clamp-6">{todayNote.content}</p>
+          </div>
+        )}
+
+        {sortedEvents.length === 0 && !todayNote ? (
           <div className="px-2 py-4 flex flex-col items-center justify-center text-center opacity-40">
             <Clock className="w-8 h-8 mb-2 stroke-[1.5]" />
             <p className="text-xs font-medium">No events for today</p>
@@ -84,6 +97,13 @@ export function Sidebar({ events, onEventClick, onNewEvent, onClearAll }: Sideba
       </div>
 
       <div className="p-4 border-t border-[var(--notion-border)] flex flex-col gap-1">
+        <button 
+          onClick={onNewNote}
+          className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[var(--notion-hover)] transition-notion text-sm opacity-60"
+        >
+          <StickyNote className="w-4 h-4" />
+          <span>{hasNote ? 'Edit catatan' : 'Tulis catatan'}</span>
+        </button>
         <button 
           onClick={onNewEvent}
           className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[var(--notion-hover)] transition-notion text-sm opacity-60"

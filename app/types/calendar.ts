@@ -51,3 +51,10 @@ export const REMINDER_OPTIONS: { value: ReminderOption; label: string }[] = [
   { value: '30min', label: '30 minutes before' },
   { value: '1hour', label: '1 hour before' },
 ];
+
+export interface Note {
+  id: string;
+  date: string;
+  content: string;
+  updatedAt: string;
+}

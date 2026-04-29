@@ -1,19 +1,22 @@
 'use client';
 
 import React from 'react';
-import { DayData, CalendarEvent } from '../types/calendar';
+import { DayData, CalendarEvent, Note } from '../types/calendar';
 import { CalendarEventCard } from './EventCard';
+import { StickyNote } from 'lucide-react';
 
 interface CalendarGridProps {
   days: DayData[];
   getEventsForDate: (date: Date) => CalendarEvent[];
+  getNoteForDate: (date: Date) => Note | undefined;
   onDateClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent, e?: React.MouseEvent) => void;
+  onNoteClick: (date: Date) => void;
 }
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-export function CalendarGrid({ days, getEventsForDate, onDateClick, onEventClick }: CalendarGridProps) {
+export function CalendarGrid({ days, getEventsForDate, getNoteForDate, onDateClick, onEventClick, onNoteClick }: CalendarGridProps) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#191919]">
       <div className="grid grid-cols-7 border-b border-[var(--notion-border)]">
@@ -30,13 +33,16 @@ export function CalendarGrid({ days, getEventsForDate, onDateClick, onEventClick
       <div className="flex-1 grid grid-cols-7 auto-rows-fr overflow-auto custom-scrollbar">
         {days.map((dayData, index) => {
           const dayEvents = getEventsForDate(dayData.date);
+          const dayNote = getNoteForDate(dayData.date);
           return (
             <DayCell
               key={index}
               dayData={dayData}
               events={dayEvents}
+              note={dayNote}
               onDateClick={onDateClick}
               onEventClick={onEventClick}
+              onNoteClick={onNoteClick}
             />
           );
         })}
@@ -48,11 +54,13 @@ export function CalendarGrid({ days, getEventsForDate, onDateClick, onEventClick
 interface DayCellProps {
   dayData: DayData;
   events: CalendarEvent[];
+  note?: Note;
   onDateClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent, e?: React.MouseEvent) => void;
+  onNoteClick: (date: Date) => void;
 }
 
-function DayCell({ dayData, events, onDateClick, onEventClick }: DayCellProps) {
+function DayCell({ dayData, events, note, onDateClick, onEventClick, onNoteClick }: DayCellProps) {
   const { day, isCurrentMonth, isToday, date } = dayData;
 
   return (
@@ -65,7 +73,7 @@ function DayCell({ dayData, events, onDateClick, onEventClick }: DayCellProps) {
         hover:bg-[var(--notion-hover)]
       `}
     >
-      <div className="flex items-center justify-center mb-2">
+      <div className="flex items-center justify-center mb-2 gap-1">
         <span
           className={`
             text-[13px] font-medium w-6 h-6 flex items-center justify-center rounded-full
@@ -77,6 +85,18 @@ function DayCell({ dayData, events, onDateClick, onEventClick }: DayCellProps) {
         >
           {day}
         </span>
+        {note && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNoteClick(date);
+            }}
+            className="bg-yellow-100 dark:bg-yellow-900/40 p-0.5 rounded hover:bg-yellow-200 dark:hover:bg-yellow-800/60 transition-colors"
+            title="Lihat catatan"
+          >
+            <StickyNote className="w-3.5 h-3.5 text-yellow-700 dark:text-yellow-400" />
+          </button>
+        )}
       </div>
 
       <div className="space-y-0.5">
