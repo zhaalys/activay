@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { CalendarHeader, CalendarGrid, EventModal, Sidebar, Toast, NoteModal } from './components';
+import { CalendarHeader, CalendarGrid, EventModal, Sidebar, Toast, NoteModal, DateActionModal } from './components';
 import { useCalendar } from './hooks/useCalendar';
 import { useEvents } from './hooks/useEvents';
 import { useNotes } from './hooks/useNotes';
-import { CalendarEvent } from './types/calendar';
+import { CalendarEvent, Note } from './types/calendar';
 
 export default function Home() {
   const {
@@ -38,6 +38,7 @@ export default function Home() {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isDateActionOpen, setIsDateActionOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
@@ -47,6 +48,10 @@ export default function Home() {
 
   const handleDateClick = useCallback((date: Date) => {
     setSelectedDate(date);
+    setIsDateActionOpen(true);
+  }, []);
+
+  const handleAddEvent = useCallback(() => {
     setSelectedEvent(null);
     setModalMode('create');
     setIsModalOpen(true);
@@ -87,10 +92,10 @@ export default function Home() {
   }, []);
 
   const handleSaveNote = useCallback((content: string) => {
-    saveNote(new Date(), content);
+    saveNote(selectedDate, content);
     setIsNoteModalOpen(false);
     showToast('Catatan disimpan');
-  }, [saveNote, showToast]);
+  }, [saveNote, selectedDate, showToast]);
 
   const handleOpenNote = useCallback(() => {
     setIsNoteModalOpen(true);
@@ -173,6 +178,18 @@ export default function Home() {
         onSave={handleSaveNote}
         note={getNoteForDate(selectedDate)}
         selectedDate={selectedDate}
+      />
+
+      <DateActionModal
+        isOpen={isDateActionOpen}
+        onClose={() => setIsDateActionOpen(false)}
+        onAddEvent={handleAddEvent}
+        onAddNote={() => {
+          setIsDateActionOpen(false);
+          setIsNoteModalOpen(true);
+        }}
+        selectedDate={selectedDate}
+        hasNote={!!getNoteForDate(selectedDate)}
       />
 
       {toast && <Toast message={toast.message} type={toast.type} />}

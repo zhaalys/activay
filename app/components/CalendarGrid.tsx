@@ -85,18 +85,20 @@ function DayCell({ dayData, events, note, onDateClick, onEventClick, onNoteClick
         >
           {day}
         </span>
-        {note && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onNoteClick(date);
-            }}
-            className="bg-yellow-100 dark:bg-yellow-900/40 p-0.5 rounded hover:bg-yellow-200 dark:hover:bg-yellow-800/60 transition-colors"
-            title="Lihat catatan"
-          >
-            <StickyNote className="w-3.5 h-3.5 text-yellow-700 dark:text-yellow-400" />
-          </button>
-        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onNoteClick(date);
+          }}
+          className={`p-0.5 rounded transition-colors ${
+            note 
+              ? 'bg-yellow-100 dark:bg-yellow-900/40 hover:bg-yellow-200 dark:hover:bg-yellow-800/60' 
+              : 'opacity-0 group-hover:opacity-60 hover:opacity-100'
+          }`}
+          title={note ? "Edit catatan" : "Tambah catatan"}
+        >
+          <StickyNote className={`w-3.5 h-3.5 ${note ? 'text-yellow-700 dark:text-yellow-400' : 'text-yellow-500'}`} />
+        </button>
       </div>
 
       <div className="space-y-0.5">
